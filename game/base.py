@@ -11,12 +11,18 @@ class Game:
     path="dummy.agent",
     init_model=TDAgent(encoder=CarRaceEncoder(), learning_rate=0.8, alpha=0.9),
     actions=[],
+    max_iter=1000,
+    protect_first_iters=200,
+    max_consecutive_decrease=7,
     train_kmeans_after=10,
     train_kmeans_every=3):
 
     self.env = gym.make(gymenv)
     self.agent = Agent.load(path, init_model)
     self.actions = actions
+    self.max_iter = max_iter
+    self.protect_first_iters = protect_first_iters
+    self.max_consecutive_decrease = max_consecutive_decrease
 
     self.path = path
     self.train_kmeans_every = train_kmeans_every
@@ -79,7 +85,7 @@ class Game:
 
         observation = new_observation
 
-        if done or ((total_reward <= 0 or num_consecutive_reduction > 5) and n > 300):
+        if done or n > self.max_iter or ((total_reward < 0 or num_consecutive_reduction > 5) and n>self.protect_first_iters):
           print("... Episode DONE!")
           print("... The agent knows {} observations so far".format(len(self.agent.v)))
           self.agent.encoder.n = 0
