@@ -11,11 +11,11 @@ class Game:
     path="dummy.agent",
     init_model=TDAgent(encoder=CarRaceEncoder(), learning_rate=0.8, alpha=0.9),
     actions=[],
-    max_iter=1000,
-    protect_first_iters=200,
+    max_iter=1500,
+    protect_first_iters=300,
     max_consecutive_decrease=7,
     train_kmeans_after=10,
-    train_kmeans_every=3):
+    train_kmeans_every=2):
 
     self.env = gym.make(gymenv)
     self.agent = Agent.load(path, init_model)

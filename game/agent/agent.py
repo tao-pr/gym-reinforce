@@ -95,7 +95,7 @@ class Agent:
     for next_statehash in self.state_machine[statehash]:
       a = self.state_machine[statehash][next_statehash]
       v = self.get_v(next_statehash) or 0
-      if v >= best_reward:
+      if v > best_reward:
         best_reward = v
         best_action = a
       return best_action, best_reward
