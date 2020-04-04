@@ -6,6 +6,12 @@ from game.agent.encoder import *
 
 class Game:
 
+  # Tips for Car racing (with Temporal-Difference)
+  # - Keep learning rate high   => So good policy will be quickly learnt, and reinforced over time
+  # - Keep alpha high           => So future has high influence
+  # - Break early               => Otherwise we learn too much about decreasing neighbour states to grass
+  # - Update KMeans often       => This helps picking up good improvisation
+
   def __init__(self, 
     gymenv="CarRacing-v0",
     path="dummy.agent",
@@ -85,7 +91,7 @@ class Game:
 
         observation = new_observation
 
-        if done or n > self.max_iter or ((total_reward < 0 or num_consecutive_reduction > 5) and n>self.protect_first_iters):
+        if done or n > self.max_iter or ((total_reward < 0 or num_consecutive_reduction > self.max_consecutive_decrease) and n>self.protect_first_iters):
           print("... Episode DONE!")
           print("... The agent knows {} observations so far".format(len(self.agent.v)))
           self.agent.encoder.n = 0
