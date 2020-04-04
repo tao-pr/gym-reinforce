@@ -1,0 +1,6 @@
+.DS_Store
+__pycache__/
+carrace.agent
+game/__pycache__/
+game/agent/__pycache__/
+model/

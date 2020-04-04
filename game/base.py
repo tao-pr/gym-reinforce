@@ -92,6 +92,14 @@ class Game:
           # Save the trained agent
           self.agent.save(self.path)
 
+          # Save the report, one line per episode
+          with open("{}.log".format(self.path), "a") as f:
+            f.write("{},{},{}\n".format(
+              n, # TOL
+              total_reward, # Total reward 
+              len(self.agent.v) # Observation count
+              ))
+
       print("Best score so far : ", best_reward)
 
   
