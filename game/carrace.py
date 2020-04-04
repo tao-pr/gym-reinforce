@@ -7,6 +7,13 @@ from game.base import Game
 
 if __name__ == '__main__':
 
+  # Tips for Car racing (with Temporal-Difference)
+  # - Keep learning rate low    => So good policy needs to repeat to confirm, also the mistakes
+  # - Keep alpha high           => So future has high influence
+  # - Break early               => Otherwise we learn too much about decreasing neighbour states to grass
+  # - Update KMeans often       => This helps picking up good improvisation
+
+
   game = Game(
     gymenv="CarRacing-v0",
     path="model/carrace-td.agent",
@@ -23,7 +30,7 @@ if __name__ == '__main__':
       [   0, 0.1, 0]
     ]],
     protect_first_iters=200,
-    max_consecutive_decrease=7,
+    max_consecutive_decrease=5,
     train_kmeans_after=5,
     train_kmeans_every=2)
 

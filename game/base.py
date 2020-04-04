@@ -5,13 +5,7 @@ from game.agent.agent import Agent, TDAgent
 from game.agent.encoder import *
 
 class Game:
-
-  # Tips for Car racing (with Temporal-Difference)
-  # - Keep learning rate high   => So good policy will be quickly learnt, and reinforced over time
-  # - Keep alpha high           => So future has high influence
-  # - Break early               => Otherwise we learn too much about decreasing neighbour states to grass
-  # - Update KMeans often       => This helps picking up good improvisation
-
+  
   def __init__(self, 
     gymenv="CarRacing-v0",
     path="dummy.agent",
@@ -75,12 +69,12 @@ class Game:
         new_observation, reward, done, info = self.env.step(action)
         total_reward += reward
 
-        if reward <= last_reward:
+        if total_reward < last_reward:
           num_consecutive_reduction += 1
         else:
           num_consecutive_reduction = 0
 
-        last_reward = reward
+        last_reward = total_reward
 
         # Record best score
         if total_reward > best_reward:
