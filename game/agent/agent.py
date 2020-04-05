@@ -11,7 +11,7 @@ class Agent:
   """
   Base reinforcement learning agent with basic interface
   """
-  def __init__(self, learning_rate=0.25):
+  def __init__(self, learning_rate=0.25, num_state_clusters=8, actions=[]):
     self.learning_rate = learning_rate
 
     # Two-level dictionaries
@@ -22,9 +22,12 @@ class Agent:
     self.encoder = StateActionEncoder() # TODO Switch to its child class
 
     # Clusters of 
+    self.num_state_clusters = num_state_clusters
     self.stateHashToState = dict()
     self.kmeans = None
     self.cluster_best_actions = dict()
+
+    self.actions = actions
 
 
   def revise_clusters(self):
@@ -32,47 +35,52 @@ class Agent:
     Given the knowledge of the observations so far,
     re-train the cluster of states and their most likelihood of best action
     """
-    num_clusters = 8
     dataset = []
     best_action = []
 
     print("Building {} state clusters from {} states".format(
-      num_clusters,
+      self.num_state_clusters,
       len(self.stateHashToState)))
     for statehash,state in self.stateHashToState.items():
       dataset.append(state)
-      best_action.append(self.best_action_from_statehash(statehash)[0])
+      a = self.best_action_from_statehash(statehash)[0]
+      if a != -1:
+        best_action.append(a)
     
     dataset = np.array(dataset)
     print("Dataset dimension : {}".format(dataset.shape))
 
     # Build KMeans clusters
     print("Fitting KMeans")
-    self.kmeans = KMeans(n_clusters=num_clusters, max_iter=200, tol=0.0001, copy_x=True, n_jobs=4)
+    self.kmeans = KMeans(n_clusters=self.num_state_clusters, max_iter=200, tol=0.0001, copy_x=True, n_jobs=4)
     self.kmeans.fit(dataset)
     clusters = self.kmeans.predict(dataset)
 
     # Collect most selected best actions from each cluster
-    cluster_best_actions = {cid: [] for cid in range(num_clusters)} # [cluster_id => list[actionhash]]
+    cluster_best_actions = {cid: [] for cid in range(self.num_state_clusters)} # [cluster_id => list[actionhash]]
     for c,a in zip(clusters, best_action):
-      cluster_best_actions[c].append(a)
+      if best_action != -1:
+        cluster_best_actions[c].append(a)
 
-    def get_best_action(cnt):
-      tops = [i for i,freq in cnt.most_common() if i!=-1]
+    def get_best_actions(cnt):
+      tops = [i for i,freq in cnt.most_common(1)] #if i!=-1]
       if len(tops)==0:
         return -1
       else:
         return tops[0]
 
-    self.cluster_best_actions = {c: get_best_action(Counter(ws))  \
+    print("Raw cluster counter : {}".format(cluster_best_actions)) # TAODEBUG
+
+    # Take the best 2 actions to take for each cluster
+    self.cluster_best_actions = {c: get_best_actions(Counter(ws))  \
       for c,ws in cluster_best_actions.items()}
 
     pop = Counter(clusters)
-    for c, best_action in self.cluster_best_actions.items():
+    for c, best_actions in self.cluster_best_actions.items():
       print("... Cluster #{} - {:4.0f} states => Best action : {}".format(
         c,
         pop[c],
-        best_action))
+        best_actions))
 
   def reset(self):
     """
@@ -110,13 +118,19 @@ class Agent:
     if statehash not in self.state_machine:
       if self.kmeans is None:
         # Unrecognised state, return no recommended action
-        print(colored("... Take random action on new state", "cyan"))
+        print(colored("... Take random action on new state", "grey"))
         return (-1, 0)
       else:
         # Assume the closest state from experience
         closest = self.kmeans.predict([statevector])[0]
-        print(colored("... Assume action from closest state", "blue"))
-        return (self.cluster_best_actions[closest], 0)
+        action = self.cluster_best_actions[closest]
+
+        if action==-1:
+          print(colored("... Assume action from closest state", "blue"))
+          return action, 0
+        else:
+          print(colored("... Take random action, not enough knowledge", "cyan"))
+          return -1,0
 
     best_action, best_reward = self.best_action_from_statehash(statehash)
 

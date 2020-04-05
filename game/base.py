@@ -5,7 +5,7 @@ from game.agent.agent import Agent, TDAgent
 from game.agent.encoder import *
 
 class Game:
-  
+
   def __init__(self, 
     gymenv="CarRacing-v0",
     path="dummy.agent",
@@ -100,10 +100,11 @@ class Game:
 
           # Save the report, one line per episode
           with open("{}.log".format(self.path), "a") as f:
-            f.write("{},{},{}\n".format(
+            f.write("{},{},{},{}\n".format(
               n, # TOL
               total_reward, # Total reward 
-              len(self.agent.v) # Observation count
+              len(self.agent.v), # Observation count
+              sum([int(a!=-1) for c,a in self.agent.cluster_best_actions.items()]), # Num clusters with non-negative-reward best action
               ))
 
       print("Best score so far : ", best_reward)
