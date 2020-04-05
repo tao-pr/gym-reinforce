@@ -69,8 +69,6 @@ class Agent:
       else:
         return tops[0]
 
-    print("Raw cluster counter : {}".format(cluster_best_actions)) # TAODEBUG
-
     # Take the best 2 actions to take for each cluster
     self.cluster_best_actions = {c: get_best_actions(Counter(ws))  \
       for c,ws in cluster_best_actions.items()}
