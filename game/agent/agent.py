@@ -16,10 +16,11 @@ class Agent:
 
     # Two-level dictionaries
     self.v = dict() # [state => reward]
+    self.a = dict() # [state => action => reward]
     self.state_machine = dict() # [state => state' => action]
 
     # Binding state and action encoder (np.array => str)
-    self.encoder = StateActionEncoder() # TODO Switch to its child class
+    self.encoder = StateActionEncoder()
 
     # Clusters of 
     self.num_state_clusters = num_state_clusters
@@ -86,7 +87,7 @@ class Agent:
     """
     pass
 
-  def learn(self, state, action, reward, next_state):
+  def learn(self, state, action, actions, reward, next_state):
     """
     Learn that:
     - If we take an action (int) on the state (np.array)`
@@ -97,14 +98,13 @@ class Agent:
 
   def best_action_from_statehash(self, statehash):
     best_action = -1
-    best_reward = 0
-    for next_statehash in self.state_machine[statehash]:
-      a = self.state_machine[statehash][next_statehash]
-      v = self.get_v(next_statehash) or 0
-      if v > best_reward:
-        best_reward = v
+    best_reward = None
+
+    for a,r in self.a[statehash].items():
+      if best_reward is None or r > best_reward:
         best_action = a
-      return best_action, best_reward
+        best_reward = r
+    return best_action, best_reward
 
   def best_action(self, state, silence=False):
     """
@@ -174,7 +174,7 @@ class TDAgent(Agent):
     self.alpha = alpha
     self.encoder = encoder
 
-  def learn(self, state, action, reward, next_state):
+  def learn(self, state, action, actions, reward, next_state):
     statevec,statehash = self.encoder.encode_state(state)
     _,newstatehash     = self.encoder.encode_state(next_state)
     actionhash         = self.encoder.encode_action(action)
@@ -192,6 +192,10 @@ class TDAgent(Agent):
       self.state_machine[statehash] = {}
     self.state_machine[statehash][newstatehash] = actionhash
 
+    # Update state action
+    if statehash not in self.a:
+      self.a[statehash] = {self.encoder.encode_action(a): 0 for a in actions}
+    self.a[statehash][actionhash] = old_v + diff
 
 class QAgent(Agent):
   """

@@ -81,7 +81,7 @@ class Game:
           best_reward = total_reward
 
         # Learn
-        self.agent.learn(observation, action, reward, new_observation)
+        self.agent.learn(observation, action, self.actions, reward, new_observation)
 
         observation = new_observation
 
