@@ -11,7 +11,7 @@ class Agent:
   """
   Base reinforcement learning agent with basic interface
   """
-  def __init__(self, learning_rate=0.25, num_state_clusters=8, actions=[]):
+  def __init__(self, learning_rate=0.25, num_state_clusters=8):
     self.learning_rate = learning_rate
 
     # Two-level dictionaries
@@ -27,8 +27,6 @@ class Agent:
     self.stateHashToState = dict()
     self.kmeans = None
     self.cluster_best_actions = dict()
-
-    self.actions = actions
 
 
   def revise_clusters(self):
@@ -98,10 +96,10 @@ class Agent:
 
   def best_action_from_statehash(self, statehash):
     best_action = -1
-    best_reward = None
+    best_reward = 0
 
     for a,r in self.a[statehash].items():
-      if best_reward is None or r > best_reward:
+      if r >= best_reward:
         best_action = a
         best_reward = r
     return best_action, best_reward
@@ -169,8 +167,8 @@ class TDAgent(Agent):
   """
   Temporal difference
   """
-  def __init__(self, encoder=StateActionEncoder(), learning_rate=0.8, alpha=1.0):
-    super().__init__(learning_rate)
+  def __init__(self, encoder=StateActionEncoder(), learning_rate=0.8, alpha=1.0, num_state_clusters=8):
+    super().__init__(learning_rate, num_state_clusters)
     self.alpha = alpha
     self.encoder = encoder
 
