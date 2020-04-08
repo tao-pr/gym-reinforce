@@ -123,29 +123,15 @@ class Agent:
     if statehash not in self.state_machine:
       if self.kmeans is None:
         # Unrecognised state, return no recommended action
-        print(colored("... Take random action on new state", "grey"))
         return (-1, 0)
       else:
         # Assume the closest state from experience
         closest = self.kmeans.predict([statevector])[0]
         action = self.cluster_best_actions[closest]
 
-        if action==-1:
-          print(colored("... Assume action from closest state", "blue"))
-          return action, 0
-        else:
-          print(colored("... Take random action, not enough knowledge", "cyan"))
-          return -1,0
+        return action, 0
 
     best_action, best_reward = self.best_action_from_statehash(statehash, actions)
-
-    if best_action == -1:
-      if not silence:
-        print(colored("... Relearn new action from experience", "yellow"))
-        return -1, 0
-    else:
-      if not silence:
-        print(colored("... Take best action from experience", "green"))
     return (best_action, best_reward)
 
   def get_v(self, statehash):

@@ -32,9 +32,9 @@ if __name__ == '__main__':
       [   0, 0.5, 0],
       [   0, 0.1, 0]
     ]],
-    protect_first_iters=300,
+    protect_first_iters=150,
     max_consecutive_decrease=5,
     train_kmeans_after=5,
-    train_kmeans_every=2)
+    train_kmeans_every=3)
 
   game.run(n_episodes=50000)

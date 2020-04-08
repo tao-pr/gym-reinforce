@@ -80,6 +80,11 @@ class Game:
         if total_reward > best_reward:
           best_reward = total_reward
 
+        if reward>0:
+          print(colored("... {:3.4f} (+ {:3.4f})".format(total_reward, reward), "green"))
+        else:
+          print(colored("... {:3.4f} (+ {:3.4f})".format(total_reward, reward), "red"))
+
         # Learn
         self.agent.learn(observation, action, self.actions, reward, new_observation)
 
@@ -87,6 +92,7 @@ class Game:
 
         if done or n > self.max_iter or ((total_reward < 0 or num_consecutive_reduction > self.max_consecutive_decrease) and n>self.protect_first_iters):
           print("... Episode DONE!")
+          print("... Total reward = {}".format(total_reward))
           print("... The agent knows {} observations so far".format(len(self.agent.v)))
           self.agent.encoder.n = 0
           done = True
