@@ -53,7 +53,7 @@ class Game:
       while not done:
         n = n+1
         self.env.render()
-        action,_ = self.agent.best_action(observation)
+        action,_ = self.agent.best_action(observation, self.actions)
 
         # If the bot does not know how to react,
         # random from the action space

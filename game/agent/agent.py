@@ -42,7 +42,7 @@ class Agent:
       len(self.stateHashToState)))
     for statehash,state in self.stateHashToState.items():
       dataset.append(state)
-      a = self.best_action_from_statehash(statehash)[0]
+      a = self.best_action_from_statehash(statehash, [])[0]
       if a != -1:
         best_action.append(a)
     
@@ -67,6 +67,10 @@ class Agent:
         return -1
       else:
         return tops[0]
+
+    # TAODEBUG:
+    cluster_action_counter = {c: Counter(ws) for c,ws in cluster_best_actions.items()}
+    print(cluster_action_counter)
 
     # Take the best 2 actions to take for each cluster
     self.cluster_best_actions = {c: get_best_actions(Counter(ws))  \
@@ -94,9 +98,14 @@ class Agent:
     """
     pass
 
-  def best_action_from_statehash(self, statehash):
+  def best_action_from_statehash(self, statehash, actions):
     best_action = -1
     best_reward = 0
+
+    # First time visiting this state, generate initial rewards for all actions
+    if statehash not in self.a:
+      self.a[statehash] = {self.encoder.encode_action(act): np.random.normal(0,1e-6)\
+        for act in actions}
 
     for a,r in self.a[statehash].items():
       if r >= best_reward:
@@ -104,7 +113,7 @@ class Agent:
         best_reward = r
     return best_action, best_reward
 
-  def best_action(self, state, silence=False):
+  def best_action(self, state, actions, silence=False):
     """
     Return the best action to take on the specified state 
     to maximise the possible reward
@@ -128,11 +137,12 @@ class Agent:
           print(colored("... Take random action, not enough knowledge", "cyan"))
           return -1,0
 
-    best_action, best_reward = self.best_action_from_statehash(statehash)
+    best_action, best_reward = self.best_action_from_statehash(statehash, actions)
 
     if best_action == -1:
       if not silence:
         print(colored("... Relearn new action from experience", "yellow"))
+        return -1, 0
     else:
       if not silence:
         print(colored("... Take best action from experience", "green"))
@@ -192,7 +202,7 @@ class TDAgent(Agent):
 
     # Update state action
     if statehash not in self.a:
-      self.a[statehash] = {self.encoder.encode_action(a): 0 for a in actions}
+      self.a[statehash] = {self.encoder.encode_action(a): np.random.normal(0, 1e-6) for a in actions}
     self.a[statehash][actionhash] = old_v + diff
 
 class QAgent(Agent):
