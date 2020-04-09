@@ -20,7 +20,7 @@ if __name__ == '__main__':
     init_model=TDAgent(
       encoder=CarRaceEncoder(), 
       learning_rate=0.8, alpha=0.9,
-      num_state_clusters=6),
+      num_state_clusters=5),
     actions=[np.array(v) for v in [
       # [steer, gas, brake]
       [-0.5, 0.1, 0],

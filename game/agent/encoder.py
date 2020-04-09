@@ -34,10 +34,10 @@ class CarRaceEncoder(StateActionEncoder):
     return max(b,g,r) - min(b,g,r) <= 30
 
   def encode_state(self, s):
-    frame = s[9:90, 0:81, :] # 81x81
+    frame = s[10:90, 0:80, :] # 80x80
 
-    ratio = 9 # Compress ratio, 81x81 => 9x9
-    tilesize = 81//ratio
+    ratio = 10 # Compress ratio, 80x80 => 8x8
+    tilesize = 80//ratio
 
     compressed = cv2.resize(frame, (tilesize,tilesize))
 
