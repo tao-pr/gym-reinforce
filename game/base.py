@@ -82,8 +82,10 @@ class Game:
 
         if reward>0:
           print(colored("... {:3.4f} (+ {:3.4f})".format(total_reward, reward), "green"))
+        elif reward==0:
+          print(colored("... {:3.4f} (  0.0000)".format(total_reward), "grey"))
         else:
-          print(colored("... {:3.4f} (+ {:3.4f})".format(total_reward, reward), "red"))
+          print(colored("... {:3.4f} (- {:3.4f})".format(abs(total_reward), reward), "red"))
 
         # Learn
         self.agent.learn(observation, action, self.actions, reward, new_observation)

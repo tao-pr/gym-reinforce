@@ -55,9 +55,9 @@ class CarRaceEncoder(StateActionEncoder):
           cv2.rectangle(box, (i*ratio,j*ratio), (i*ratio+ratio,j*ratio+ratio), [255,255,255], -1)
 
     vector = np.array(vector)
-    if self.n<100:
-      filename = "debug/f-{:4}.png".format(self.n)
-      cv2.imwrite(filename, box)
-      self.n = self.n+1
+    # if self.n<100:
+    #   filename = "debug/f-{:4}.png".format(self.n)
+    #   cv2.imwrite(filename, box)
+    #   self.n = self.n+1
 
     return vector, np.array2string(vector, precision=0)    
